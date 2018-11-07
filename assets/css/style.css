@@ -1,0 +1,40 @@
+div p {
+  font-weight: bold;
+}
+
+body {
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
+h1 {
+  color: #525252;
+}
+
+h2 {
+  color: #525252;
+  font-size: 30px;
+}
+
+div {
+  font-size: 10px;
+}
+
+.frame {
+  border: medium solid #525252;
+}
+
+.chart {
+  width: 80%;
+  margin: 0 auto;
+}
+
+.amchart_p {
+  margin-left: 20px;
+  font-size: 15px;
+}
+
+a {
+  font-size: 20px;
+  padding-bottom: 10px;
+}
