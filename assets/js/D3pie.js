@@ -26,44 +26,44 @@ var d3pie = new d3pie("pieChart", {
 		"sortOrder": "label-asc",
 		"content": [
 			{
-				"label": "A",
-				"value": 264131,
-				"color": "#2484c1"
+				"label": "A 30%",
+				"value": 20,
+				"color": "#cb2121"
 			},
 			{
-				"label": "B",
-				"value": 218812,
-				"color": "#0c6197"
-			},
-			{
-				"label": "C",
-				"value": 157618,
-				"color": "#4daa4b"
-			},
-			{
-				"label": "D",
-				"value": 114384,
-				"color": "#90c469"
-			},
-			{
-				"label": "E",
-				"value": 95002,
-				"color": "#daca61"
-			},
-			{
-				"label": "F",
-				"value": 78327,
-				"color": "#e4a14b"
-			},
-			{
-				"label": "G",
-				"value": 67706,
+				"label": "B 20%",
+				"value": 20,
 				"color": "#e98125"
 			},
 			{
-				"label": "H",
-				"value": 36344,
-				"color": "#cb2121"
+				"label": "C 12%",
+				"value": 20,
+				"color": "#e4a14b"
+			},
+			{
+				"label": "D 11%",
+				"value": 20,
+				"color": "#daca61"
+			},
+			{
+				"label": "E 9%",
+				"value": 20,
+				"color": "#90c469"
+			},
+			{
+				"label": "F 8%",
+				"value": 20,
+				"color": "#4daa4b"
+			},
+			{
+				"label": "G 7%",
+				"value": 20,
+				"color": "#0c6197"
+			},
+			{
+				"label": "H 3%",
+				"value": 20,
+				"color": "#2484c1"
 			}
 		]
 	},
@@ -72,6 +72,7 @@ var d3pie = new d3pie("pieChart", {
 			"pieDistance": 32
 		},
 		"inner": {
+      "format": "none",
 			"hideWhenLessThanPercentage": 3
 		},
 		"mainLabel": {
