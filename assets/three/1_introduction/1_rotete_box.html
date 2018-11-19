@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <script src="three.min.js"></script>
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/89/three.min.js"></script> -->
   <script>
     // ページの読み込みを待つ
     window.addEventListener('load', init);
@@ -15,7 +16,7 @@
 
       // レンダラーを作成
       const renderer = new THREE.WebGLRenderer({
-        canvas: document.querySelector('#myCanvas')
+        canvas: document.querySelector('.myCanvas')
       });
       renderer.setPixelRatio(window.devicePixelRatio);
       renderer.setSize(width, height);
@@ -39,13 +40,13 @@
       function tick() {
         box.rotation.y += 0.01;
         renderer.render(scene, camera); // レンダリング
-
+        // 1フレームごとにtickを呼ぶ
         requestAnimationFrame(tick);
       }
     }
   </script>
 </head>
 <body>
-  <canvas id="myCanvas"></canvas>
+  <canvas class="myCanvas"></canvas>
 </body>
 </html>
