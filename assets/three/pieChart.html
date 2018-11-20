@@ -14,6 +14,9 @@
       const height = 540;
       // 刻み幅
       const stride = 0.3
+      // 円の半径
+      const radius = 100;
+
       function abs(val) {
         return val < 0 ? -val : val;
       };
@@ -34,6 +37,10 @@
       camera.position.set(-81, 243, 465);
       // カメラコントローラーを作成
       const controls = new THREE.OrbitControls(camera);
+      controls.minDistance = radius*2;
+      controls.maxDistance = Infinity; 
+      controls.maxPolarAngle = Math.PI/2; 
+
       camera.lookAt(new THREE.Vector3(0, 0, 0));
 
       // // 地面を作成
@@ -45,8 +52,8 @@
         // ラジアンに変換する
         const radian = angle * Math.PI / 180;
         // 角度に応じて位置を設定
-        var x = 100 * Math.sin(radian);
-        var z = 100 * Math.cos(radian);
+        var x = radius * Math.sin(radian);
+        var z = radius * Math.cos(radian);
         
         var positions = {
           x: x,
@@ -69,13 +76,12 @@
       }
       // chart 描く
       let prev_damage_position = 0;
-      function drowPie(start, end, chartColor) {
+      const drowPie = (start, end, chartColor) => {
         for(var i = start; i < end; i+= stride){
           const positions = getRotPosition(i);
 
           //geometryの宣言と生成
           var geometry = new THREE.Geometry();
-
           // draw pie
           for(var j = 0; j < 15; j+=0.3){
             //頂点座標の追加
@@ -86,6 +92,8 @@
           var line = new THREE.Line( geometry, new THREE.LineBasicMaterial( { color: chartColor} ) );
           //sceneにlineを追加
           scene.add( line );
+
+
           // 負荷のグラフ
           //geometryの宣言と生成
           var damage_geometry = new THREE.Geometry();
@@ -121,13 +129,11 @@
       }
       
       var color_list = [0x42bcf4,0x41f447,0xf4f441,0xf47941,0xf4424b,0xf441eb,0xc1f441,0x4167f4];
-      for(var i = 0; i < 360; i += 45){
-        drowPie(i, i+100, color_list[i/45]);
+      const sectorAngle = 45;
+      for(var i = 0; i < 360; i += sectorAngle){
+        drowPie(i, i+sectorAngle, color_list[i/sectorAngle]);
       }
-      // drowPie(0, 90, 0x42bcf4);
-      // drowPie(90, 180, 0x41f447);
-      // drowPie(180, 270, 0xf4f441);
-      // drowPie(270, 360, 0xf47941);
+    
 
       // 三角形を描く
       // var vertices = [
@@ -164,9 +170,11 @@
       // 毎フレーム時に実行されるループイベントです
       function tick() {
         // console.log(camera.position)
+
         // レンダリング
         renderer.render(scene, camera);
         requestAnimationFrame(tick);
+
       }
     }
   </script>
