@@ -12,6 +12,11 @@
       // サイズを指定
       const width = 960;
       const height = 540;
+      // 刻み幅
+      const stride = 0.3
+      function abs(val) {
+        return val < 0 ? -val : val;
+      };
 
       // レンダラーを作成
       const renderer = new THREE.WebGLRenderer({
@@ -35,6 +40,7 @@
       scene.add(new THREE.GridHelper(600));
       scene.add(new THREE.AxesHelper(300));
 
+      // 角度から座標を取得(x,z)
       const getRotPosition = (angle) => {
         // ラジアンに変換する
         const radian = angle * Math.PI / 180;
@@ -48,10 +54,23 @@
         };
         return positions;
       }
-
+      //乱数生成最大値・最小値を引数に持つ関数
+      const getRandom = ( min, max ) => {
+          var random = Math.floor( Math.random() * (max + 1 - min) ) + min;
+          return random;
+      }
+      //乱数生成最大値・最小値を引数に持つ関数
+      const getSin = ( angle ) => {
+          // ラジアンに変換する
+          const radian = 10 * angle * Math.PI / 180;
+          // 角度に応じて位置を設定
+          const sin = 10 * Math.sin(radian) + 40 + radian/2;
+          return sin;
+      }
       // chart 描く
+      let prev_damage_position = 0;
       function drowPie(start, end, chartColor) {
-        for(var i = start; i < end; i+= 0.3){
+        for(var i = start; i < end; i+= stride){
           const positions = getRotPosition(i);
 
           //geometryの宣言と生成
@@ -67,13 +86,25 @@
           var line = new THREE.Line( geometry, new THREE.LineBasicMaterial( { color: chartColor} ) );
           //sceneにlineを追加
           scene.add( line );
-                 // // 縦の線
-          // var ver_geometry = new THREE.Geometry();
-          // ver_geometry.vertices.push( new THREE.Vector3( x, 0, z) );
-          // ver_geometry.vertices.push( new THREE.Vector3( x, 40, z) );
-          // var vertical_line = new THREE.Line( ver_geometry, new THREE.LineBasicMaterial( { color: 0xffffff} ) );
-          // //sceneにlineを追加
-          // scene.add( vertical_line );
+          // 負荷のグラフ
+          //geometryの宣言と生成
+          var damage_geometry = new THREE.Geometry();
+          // const damage_position = getRandom(15,100);
+          // const next_damage_position = getRandom(15,100);
+          if(i == 0){
+            prev_damage_position = getSin(i);
+          }else if( i < 360 ){
+            const damage_position = getSin(i);
+            //頂点座標の追加
+            damage_geometry.vertices.push( new THREE.Vector3( positions.x, prev_damage_position, positions.z) ); 
+            damage_geometry.vertices.push( new THREE.Vector3( positions.x, damage_position, positions.z) ); 
+            
+            //線オブジェクトの生成	
+            line = new THREE.Line( damage_geometry, new THREE.LineBasicMaterial( { color: 0xffffff} ) );
+            //sceneにlineを追加
+            scene.add( line );
+            prev_damage_position = damage_position;
+          } 
         }
       }
       // draw vertical lines
@@ -91,7 +122,7 @@
       
       var color_list = [0x42bcf4,0x41f447,0xf4f441,0xf47941,0xf4424b,0xf441eb,0xc1f441,0x4167f4];
       for(var i = 0; i < 360; i += 45){
-        drowPie(i, i+45, color_list[i/45]);
+        drowPie(i, i+100, color_list[i/45]);
       }
       // drowPie(0, 90, 0x42bcf4);
       // drowPie(90, 180, 0x41f447);
