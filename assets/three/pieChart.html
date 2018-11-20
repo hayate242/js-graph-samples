@@ -35,14 +35,25 @@
       scene.add(new THREE.GridHelper(600));
       scene.add(new THREE.AxesHelper(300));
 
+      const getRotPosition = (angle) => {
+        // ラジアンに変換する
+        const radian = angle * Math.PI / 180;
+        // 角度に応じて位置を設定
+        var x = 100 * Math.sin(radian);
+        var z = 100 * Math.cos(radian);
+        
+        var positions = {
+          x: x,
+          z: z
+        };
+        return positions;
+      }
+
       // chart 描く
       function drowPie(start, end, chartColor) {
         for(var i = start; i < end; i+= 0.3){
-          // ラジアンに変換する
-          const radian = i * Math.PI / 180;
-          // 角度に応じて位置を設定
-          var x = 100 * Math.sin(radian);
-          var z = 100 * Math.cos(radian);
+          const positions = getRotPosition(i);
+
           //geometryの宣言と生成
           var geometry = new THREE.Geometry();
 
@@ -50,23 +61,34 @@
           for(var j = 0; j < 15; j+=0.3){
             //頂点座標の追加
             geometry.vertices.push( new THREE.Vector3( 0, 0+j, 0) ); 
-            geometry.vertices.push( new THREE.Vector3( x, 0+j, z) ); 
+            geometry.vertices.push( new THREE.Vector3( positions.x, 0+j, positions.z) ); 
           }
           //線オブジェクトの生成	
           var line = new THREE.Line( geometry, new THREE.LineBasicMaterial( { color: chartColor} ) );
           //sceneにlineを追加
           scene.add( line );
-
-          // // 縦の線
+                 // // 縦の線
           // var ver_geometry = new THREE.Geometry();
           // ver_geometry.vertices.push( new THREE.Vector3( x, 0, z) );
           // ver_geometry.vertices.push( new THREE.Vector3( x, 40, z) );
           // var vertical_line = new THREE.Line( ver_geometry, new THREE.LineBasicMaterial( { color: 0xffffff} ) );
           // //sceneにlineを追加
           // scene.add( vertical_line );
-
         }
       }
+      // draw vertical lines
+      for(var i = 0; i <= 360; i+=45){
+        const positions = getRotPosition(i);
+        console.log(positions);
+        // 縦の線
+        var ver_geometry = new THREE.Geometry();
+        ver_geometry.vertices.push( new THREE.Vector3( positions.x, 0, positions.z) );
+        ver_geometry.vertices.push( new THREE.Vector3( positions.x, 80, positions.z) );
+        var vertical_line = new THREE.Line( ver_geometry, new THREE.LineBasicMaterial( { color: 0xffffff} ) );
+        //sceneにlineを追加
+        scene.add( vertical_line );
+      }
+      
       var color_list = [0x42bcf4,0x41f447,0xf4f441,0xf47941,0xf4424b,0xf441eb,0xc1f441,0x4167f4];
       for(var i = 0; i < 360; i += 45){
         drowPie(i, i+45, color_list[i/45]);
