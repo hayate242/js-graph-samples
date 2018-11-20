@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <script src="three.min.js"></script>
+  <script src="js/controls/OrbitControls.js"></script>
+  <script>
+    // ページの読み込みを待つ
+    window.addEventListener('load', init);
+
+    function init() {
+      // サイズを指定
+      const width = 960;
+      const height = 540;
+
+      // レンダラーを作成
+      const renderer = new THREE.WebGLRenderer({
+        canvas: document.querySelector('#myCanvas'),
+      });
+      renderer.setPixelRatio(window.devicePixelRatio);
+      renderer.setSize(width, height);
+
+      // シーンを作成
+      const scene = new THREE.Scene();
+
+      // カメラを作成
+      const camera = new THREE.PerspectiveCamera(45, width / height);
+      // カメラの初期座標を設定
+      camera.position.set(-81, 243, 465);
+      // カメラコントローラーを作成
+      const controls = new THREE.OrbitControls(camera);
+      camera.lookAt(new THREE.Vector3(0, 0, 0));
+
+      // // 地面を作成
+      scene.add(new THREE.GridHelper(600));
+      scene.add(new THREE.AxesHelper(300));
+
+      // chart 描く
+      function drowPie(start, end, chartColor) {
+        for(var i = start; i < end; i+= 0.3){
+          // ラジアンに変換する
+          const radian = i * Math.PI / 180;
+          // 角度に応じて位置を設定
+          var x = 100 * Math.sin(radian);
+          var z = 100 * Math.cos(radian);
+          //geometryの宣言と生成
+          var geometry = new THREE.Geometry();
+
+          // draw pie
+          for(var j = 0; j < 15; j+=0.3){
+            //頂点座標の追加
+            geometry.vertices.push( new THREE.Vector3( 0, 0+j, 0) ); 
+            geometry.vertices.push( new THREE.Vector3( x, 0+j, z) ); 
+          }
+          //線オブジェクトの生成	
+          var line = new THREE.Line( geometry, new THREE.LineBasicMaterial( { color: chartColor} ) );
+          //sceneにlineを追加
+          scene.add( line );
+
+          // // 縦の線
+          // var ver_geometry = new THREE.Geometry();
+          // ver_geometry.vertices.push( new THREE.Vector3( x, 0, z) );
+          // ver_geometry.vertices.push( new THREE.Vector3( x, 40, z) );
+          // var vertical_line = new THREE.Line( ver_geometry, new THREE.LineBasicMaterial( { color: 0xffffff} ) );
+          // //sceneにlineを追加
+          // scene.add( vertical_line );
+
+        }
+      }
+      var color_list = [0x42bcf4,0x41f447,0xf4f441,0xf47941,0xf4424b,0xf441eb,0xc1f441,0x4167f4];
+      for(var i = 0; i < 360; i += 45){
+        drowPie(i, i+45, color_list[i/45]);
+      }
+      // drowPie(0, 90, 0x42bcf4);
+      // drowPie(90, 180, 0x41f447);
+      // drowPie(180, 270, 0xf4f441);
+      // drowPie(270, 360, 0xf47941);
+
+      // 三角形を描く
+      // var vertices = [
+      // new THREE.Vector3(0, 0, 0),
+      // new THREE.Vector3(100, 0, 0),
+      // new THREE.Vector3(0, 0, 100)];
+
+      // var faces = [new THREE.Face3(1, 0, 2)];
+
+      // var geometry = new THREE.Geometry();
+      // geometry.vertices = vertices;
+      // geometry.faces = faces;
+      // geometry.computeFaceNormals();
+
+      // // var material = new THREE.MeshPhongMaterial({
+      // //   color: 0x00ffff });
+      // var material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+
+      // var sector = new THREE.Mesh(geometry, material);
+
+      // scene.add(sector);
+
+      render();
+
+      //描画
+      function render() {
+        renderer.render(scene, camera);
+        // animation
+        requestAnimationFrame(render);
+      }
+
+      tick();
+
+      // 毎フレーム時に実行されるループイベントです
+      function tick() {
+        // console.log(camera.position)
+        // レンダリング
+        renderer.render(scene, camera);
+        requestAnimationFrame(tick);
+      }
+    }
+  </script>
+</head>
+<body>
+  <canvas id="myCanvas"></canvas>
+</body>
+</html>
