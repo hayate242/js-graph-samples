@@ -2,8 +2,9 @@
 <html>
 <head>
   <meta charset="utf-8"/>
-  <script src="three.min.js"></script>
+  <script src="js/three.min.js"></script>
   <script src="js/controls/OrbitControls.js"></script>
+
   <script>
     // ページの読み込みを待つ
     window.addEventListener('load', init);
@@ -16,6 +17,8 @@
       const stride = 0.3
       // 円の半径
       const radius = 100;
+      // piechartの1sectorの角度
+      const sectorAngle = 45;
 
       function abs(val) {
         return val < 0 ? -val : val;
@@ -48,7 +51,7 @@
       scene.add(new THREE.AxesHelper(300));
 
       // 角度から座標を取得(x,z)
-      const getRotPosition = (angle) => {
+      const getRotPosition = (angle, radius) => {
         // ラジアンに変換する
         const radian = angle * Math.PI / 180;
         // 角度に応じて位置を設定
@@ -69,16 +72,16 @@
       //乱数生成最大値・最小値を引数に持つ関数
       const getSin = ( angle ) => {
           // ラジアンに変換する
-          const radian = 10 * angle * Math.PI / 180;
+          const radian = angle * Math.PI / 180;
           // 角度に応じて位置を設定
-          const sin = 10 * Math.sin(radian) + 40 + radian/2;
+          const sin = 10 * Math.sin(10*radian) + 40 + 10*radian/2;
           return sin;
       }
       // chart 描く
       let prev_damage_position = 0;
       const drowPie = (start, end, chartColor) => {
         for(var i = start; i < end; i+= stride){
-          const positions = getRotPosition(i);
+          const positions = getRotPosition(i, radius);
 
           //geometryの宣言と生成
           var geometry = new THREE.Geometry();
@@ -106,56 +109,72 @@
             //頂点座標の追加
             damage_geometry.vertices.push( new THREE.Vector3( positions.x, prev_damage_position, positions.z) ); 
             damage_geometry.vertices.push( new THREE.Vector3( positions.x, damage_position, positions.z) ); 
-            
+            var material = new THREE.LineBasicMaterial( { color: 0xffffff} );
+            material.linewidth = 3;
             //線オブジェクトの生成	
-            line = new THREE.Line( damage_geometry, new THREE.LineBasicMaterial( { color: 0xffffff} ) );
+            line = new THREE.Line( damage_geometry, material );
             //sceneにlineを追加
             scene.add( line );
             prev_damage_position = damage_position;
           } 
         }
       }
+      // textを描く
+      const drawText = (text, angle) => {
+        const positions = getRotPosition(angle, radius*0.7);
+
+        const loader = new THREE.FontLoader();
+        loader.load('fonts/helvetiker_regular.typeface.json', function(font){
+          const textGeometry = new THREE.TextGeometry(text, {
+            font: font,
+            size: 20,
+            height: 5,
+            curveSegments: 12
+          });
+          const materials = [
+            new THREE.MeshBasicMaterial( { color: 0xffffff, overdraw: 0.5 } ),
+            new THREE.MeshBasicMaterial( { color: 0x000000, overdraw: 0.5 } )
+          ];
+          const textMesh = new THREE.Mesh(textGeometry, materials);
+          textMesh.position.set(positions.x-10, 10, positions.z-10);
+          textMesh.rotation.set(-Math.PI/2, 0, -Math.PI/2);
+          scene.add(textMesh);
+        });
+      }
+
+      /*
+        *
+        * use plot functions from here
+        * 
+        * 
+        * 
+      */
       // draw vertical lines
-      for(var i = 0; i <= 360; i+=45){
-        const positions = getRotPosition(i);
-        console.log(positions);
+      for(var i = 0; i <= 360; i += sectorAngle){
+        const positions = getRotPosition(i, radius);
+        // console.log(positions);
         // 縦の線
         var ver_geometry = new THREE.Geometry();
         ver_geometry.vertices.push( new THREE.Vector3( positions.x, 0, positions.z) );
         ver_geometry.vertices.push( new THREE.Vector3( positions.x, 80, positions.z) );
-        var vertical_line = new THREE.Line( ver_geometry, new THREE.LineBasicMaterial( { color: 0xffffff} ) );
+        var material = new THREE.LineBasicMaterial( { color: 0xffffff} );
+        material.linewidth = 3;
+        var vertical_line = new THREE.Line( ver_geometry, material );
         //sceneにlineを追加
         scene.add( vertical_line );
       }
-      
+      // draw pieChart
       var color_list = [0x42bcf4,0x41f447,0xf4f441,0xf47941,0xf4424b,0xf441eb,0xc1f441,0x4167f4];
-      const sectorAngle = 45;
       for(var i = 0; i < 360; i += sectorAngle){
         drowPie(i, i+sectorAngle, color_list[i/sectorAngle]);
       }
-    
+      // draw Text
+      for(var angle = 1; angle <= 8; angle++){
+        // A~G
+        drawText( String.fromCharCode(64+angle), angle*45-25);
+      }
 
-      // 三角形を描く
-      // var vertices = [
-      // new THREE.Vector3(0, 0, 0),
-      // new THREE.Vector3(100, 0, 0),
-      // new THREE.Vector3(0, 0, 100)];
-
-      // var faces = [new THREE.Face3(1, 0, 2)];
-
-      // var geometry = new THREE.Geometry();
-      // geometry.vertices = vertices;
-      // geometry.faces = faces;
-      // geometry.computeFaceNormals();
-
-      // // var material = new THREE.MeshPhongMaterial({
-      // //   color: 0x00ffff });
-      // var material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-
-      // var sector = new THREE.Mesh(geometry, material);
-
-      // scene.add(sector);
-
+      
       render();
 
       //描画
@@ -169,7 +188,6 @@
 
       // 毎フレーム時に実行されるループイベントです
       function tick() {
-        // console.log(camera.position)
 
         // レンダリング
         renderer.render(scene, camera);
@@ -180,6 +198,20 @@
   </script>
 </head>
 <body>
-  <canvas id="myCanvas"></canvas>
+  <!-- 親のタグの基準点をリセット -->
+  <div style="position:relative; overflow: hidden; width: 960px; height: 540px;">
+    <canvas id="myCanvas"></canvas>
+    <!-- ライン描画用のSVG -->
+    <svg width="960" height="540" style="position: absolute; top: 0; left: 0;">
+      <g stroke="white">
+        <line id="svgLine"
+              x1="0" y1="0" x2="0" y2="0"
+              stroke-width="3"/>
+      </g>
+    </svg>
+
+    <!-- 座標表示用のdivタグ -->
+    <div id="hud" style="position: absolute; top: 0; left: 0; background: white"></div>
+  </div>
 </body>
 </html>
