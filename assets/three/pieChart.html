@@ -2,6 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <script src="js/three.min.js"></script>
   <script src="js/controls/OrbitControls.js"></script>
 
@@ -184,16 +185,32 @@
         requestAnimationFrame(render);
       }
 
-      tick();
-
-      // 毎フレーム時に実行されるループイベントです
-      function tick() {
-
-        // レンダリング
-        renderer.render(scene, camera);
-        requestAnimationFrame(tick);
-
+      // 初期化のために実行
+      onResize();
+      // リサイズイベント発生時に実行
+      window.addEventListener('resize', onResize);
+      function onResize() {
+        // サイズを取得
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        // レンダラーのサイズを調整する
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(width, height);
+        // カメラのアスペクト比を正す
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
       }
+
+      // tick();
+
+      // // 毎フレーム時に実行されるループイベントです
+      // function tick() {
+
+      //   // レンダリング
+      //   renderer.render(scene, camera);
+      //   requestAnimationFrame(tick);
+
+      // }
     }
   </script>
 </head>
