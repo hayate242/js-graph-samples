@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <script src="js/three.min.js"></script>
+  <script src="js/controls/OrbitControls.js"></script>
+  <script src='js/libs/dat.gui.min.js'></script>
+  <script src="js/ParametricGeometries.js"></script>
+  <script src='js/geometry.js'></script>
+  <script>
+    // ページの読み込みを待つ
+    window.addEventListener('load', init);
+
+    function init() {
+      // サイズを指定
+      const width = 960;
+      const height = 540;
+      // 刻み幅
+      const stride = 0.3
+      // 円の半径
+      const radius = 100;
+      // piechartの1sectorの角度
+      const sectorAngle = 45;
+
+      function abs(val) {
+        return val < 0 ? -val : val;
+      };
+
+      // レンダラーを作成
+      const renderer = new THREE.WebGLRenderer({
+        canvas: document.querySelector('#myCanvas'),
+      });
+      renderer.setPixelRatio(window.devicePixelRatio);
+      renderer.setSize(width, height);
+
+      // シーンを作成
+      const scene = new THREE.Scene();
+
+      // カメラを作成
+      const camera = new THREE.PerspectiveCamera(45, width / height);
+      // カメラの初期座標を設定
+      camera.position.set(0, 243, 0);
+      // カメラコントローラーを作成
+      const controls = new THREE.OrbitControls(camera);
+      controls.minDistance = radius*2;
+      controls.maxDistance = Infinity; 
+      controls.maxPolarAngle = Math.PI/2; 
+
+      camera.lookAt(new THREE.Vector3(0, 0, 0));
+
+      // // 地面を作成
+      scene.add(new THREE.GridHelper(600));
+      scene.add(new THREE.AxesHelper(300));
+
+      // 角度から座標を取得(x,z)
+      const getRotPosition = (angle) => {
+        // ラジアンに変換する
+        const radian = angle * Math.PI / 180;
+        // 角度に応じて位置を設定
+        var x = radius * Math.sin(radian);
+        var z = radius * Math.cos(radian);
+        
+        var positions = {
+          x: x,
+          z: z
+        };
+        return positions;
+      }
+      //乱数生成最大値・最小値を引数に持つ関数
+      const getRandom = ( min, max ) => {
+          var random = Math.floor( Math.random() * (max + 1 - min) ) + min;
+          return random;
+      }
+      //乱数生成最大値・最小値を引数に持つ関数
+      const getSin = ( angle ) => {
+          // ラジアンに変換する
+          const radian = angle * Math.PI / 180;
+          // 角度に応じて位置を設定
+          const sin = 10 * Math.sin(10*radian) + 40 + 10*radian/2;
+          return sin;
+      }
+      // chart 描く
+      let prev_damage_position = 0;
+      // meshchart用
+      var gui = new dat.GUI();
+      const drowMeshPie = (meshradius, circleNum, sectorNum) => {
+        const circleSpace = meshradius / circleNum;
+        var material = new THREE.MeshBasicMaterial( { color: 0xeeee00 } );
+        var geometry = new THREE.CircleGeometry( meshradius, sectorNum ); //角の数が500
+
+        var mesh = new THREE.Mesh( geometry, material );
+        scene.add( mesh );
+      }
+      // draw vertical lines
+      for(var i = 0; i <= 360; i += sectorAngle){
+        const positions = getRotPosition(i);
+        console.log(positions);
+        // 縦の線
+        var ver_geometry = new THREE.Geometry();
+        ver_geometry.vertices.push( new THREE.Vector3( positions.x, 0, positions.z) );
+        ver_geometry.vertices.push( new THREE.Vector3( positions.x, 80, positions.z) );
+        const material = new THREE.LineBasicMaterial( { color: 0xffffff} );
+        material.linewidth = 3;
+        var vertical_line = new THREE.Line( ver_geometry,  );
+        //sceneにlineを追加
+        scene.add( vertical_line );
+      }
+      drowMeshPie(300,30,10);
+
+      render();
+
+      //描画
+      function render() {
+        renderer.render(scene, camera);
+        // animation
+        requestAnimationFrame(render);
+      }
+
+      tick();
+
+      // 毎フレーム時に実行されるループイベントです
+      function tick() {
+        // console.log(camera.position)
+
+        // レンダリング
+        renderer.render(scene, camera);
+        requestAnimationFrame(tick);
+
+      }
+    }
+  </script>
+</head>
+<body>
+  <canvas id="myCanvas"></canvas>
+</body>
+</html>
