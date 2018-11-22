@@ -15,7 +15,7 @@
       const width = 960;
       const height = 540;
       // 刻み幅
-      const stride = 0.3
+      const stride = 0.2;
       // 円の半径
       const radius = 100;
       // piechartの1sectorの角度
@@ -27,6 +27,7 @@
 
       // レンダラーを作成
       const renderer = new THREE.WebGLRenderer({
+        // antialias: true,
         canvas: document.querySelector('#myCanvas'),
       });
       renderer.setPixelRatio(window.devicePixelRatio);
@@ -42,8 +43,8 @@
       // カメラコントローラーを作成
       const controls = new THREE.OrbitControls(camera);
       controls.minDistance = radius*2;
-      controls.maxDistance = Infinity; 
-      controls.maxPolarAngle = Math.PI/2; 
+      controls.maxDistance = Infinity;
+      controls.maxPolarAngle = Math.PI/2;
 
       camera.lookAt(new THREE.Vector3(0, 0, 0));
 
@@ -87,7 +88,7 @@
           //geometryの宣言と生成
           var geometry = new THREE.Geometry();
           // draw pie
-          for(var j = 0; j < 15; j+=0.3){
+          for(var j = 0; j < 15; j+=stride){
             //頂点座標の追加
             geometry.vertices.push( new THREE.Vector3( 0, 0+j, 0) ); 
             geometry.vertices.push( new THREE.Vector3( positions.x, 0+j, positions.z) ); 
@@ -137,7 +138,7 @@
             new THREE.MeshBasicMaterial( { color: 0x000000, overdraw: 0.5 } )
           ];
           const textMesh = new THREE.Mesh(textGeometry, materials);
-          textMesh.position.set(positions.x-10, 10, positions.z-10);
+          textMesh.position.set(positions.x-10, 11, positions.z-10);
           textMesh.rotation.set(-Math.PI/2, 0, -Math.PI/2);
           scene.add(textMesh);
         });
@@ -150,6 +151,45 @@
         * 
         * 
       */
+    //  // ポリゴン作成 
+    //   new THREE.PlaneGeometry(2.2, 2.6);
+
+    //   // テクスチャ読み込み 
+    //   var texture = loader.load( 'images/example.png' );
+
+    //   // メッシュ作成 
+    //   new THREE.MeshBasicMaterial({ 
+    //   map: texture, 
+    //   transparent: true, 
+    //   side:THREE.DoubleSide, 
+    //   });
+      // // 北マークの表示
+      // var material = new THREE.SpriteMaterial({
+      //   map: new THREE.TextureLoader().load('imgs/bearing_mark.jpg'),
+      // });
+      // const sprite = new THREE.Sprite(material);
+      // // 必要に応じてスケールを調整
+      // sprite.scale.set(30, 30, 30);
+      // sprite.position.set(10,100,10);
+      // scene.add(sprite);
+      // 画像を指定したmaterialの用意
+      var material = new THREE.MeshBasicMaterial( {
+        map:THREE.ImageUtils.loadTexture('imgs/bearing_mark.png', {}, function() {renderer.render(scene, camera);})
+      } );
+
+      // 画像貼り付け用板
+      var geometry = new THREE.PlaneGeometry(107*0.2, 199*0.2);
+      var mesh = new THREE.Mesh( geometry, material );
+      mesh.rotation.set(-Math.PI/2, 0, -Math.PI/2);
+      mesh.position.set(130,10,20);
+      scene.add( mesh );
+
+      // var geometry = new THREE.CylinderGeometry( 1, 10*3, 10*3, 4 );
+      // var material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
+      // var cylinder = new THREE.Mesh( geometry, material );
+      // scene.add( cylinder );
+
+
       // draw vertical lines
       for(var i = 0; i <= 360; i += sectorAngle){
         const positions = getRotPosition(i, radius);
