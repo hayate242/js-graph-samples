@@ -51,6 +51,14 @@
       // // 地面を作成
       scene.add(new THREE.GridHelper(600));
       scene.add(new THREE.AxesHelper(300));
+      // 平行光源
+      const directionalLight = new THREE.DirectionalLight(0xFFFFFF);
+      directionalLight.position.set(1, 1, 1);
+      scene.add(directionalLight);
+      // 環境光源
+      const ambientLight = new THREE.AmbientLight(0x333333);
+      scene.add(ambientLight);
+
 
       // 角度から座標を取得(x,z)
       const getRotPosition = (angle, radius) => {
@@ -81,12 +89,23 @@
       }
       // chart 描く
       let prev_damage_position = 0;
+      // マウスとの交差を調べたいものは配列に格納する
+      const meshList = [];
+      // グループを作る
+      const sectorlist = [];
+      var sectorNum = 0;
+
       const drowPie = (start, end, chartColor) => {
+        //geometryの宣言と生成
+        var geometry = new THREE.Geometry();
+        // 3D空間にグループを追加する
+        sectorlist[sectorNum] = new THREE.Group();
+        scene.add(sectorlist[sectorNum]);
+
         for(var i = start; i < end; i+= stride){
           const positions = getRotPosition(i, radius);
 
-          //geometryの宣言と生成
-          var geometry = new THREE.Geometry();
+          
           // draw pie
           geometry.vertices.push( new THREE.Vector3( 0, 0, 0) ); 
           geometry.vertices.push( new THREE.Vector3( positions.x, 0, positions.z) ); 
@@ -95,15 +114,12 @@
           //線オブジェクトの生成	
           var line = new THREE.Line( geometry, new THREE.LineBasicMaterial( { color: chartColor} ) );
           
-          //sceneにlineを追加
-          scene.add( line );
-
+          //scenelistにlineを追加
+          sectorlist[sectorNum].add(line);
 
           // 負荷のグラフ
           //geometryの宣言と生成
           var damage_geometry = new THREE.Geometry();
-          // const damage_position = getRandom(15,100);
-          // const next_damage_position = getRandom(15,100);
           if(i == 0){
             prev_damage_position = getSin(i);
           }else if( i < 360 ){
@@ -120,6 +136,7 @@
             prev_damage_position = damage_position;
           } 
         }
+        sectorNum++;
       }
       // textを描く
       const drawText = (text, angle) => {
