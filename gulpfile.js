@@ -27,9 +27,16 @@ const concat   = require('gulp-concat');
 const uglify   = require('gulp-uglify');
 
 // style.scssをタスクを作成する
-gulp.task('scss', function () {
-    // style.scssファイルを取得 ※return必須
+// concat
+gulp.task('scss.concat', function () {
     return gulp.src('assets/scss/*.scss')
+    .pipe(plumber())
+    .pipe(concat('style.scss'))
+    .pipe(gulp.dest('assets/main-scss/'));
+});
+gulp.task('scss.compile', function () {
+    // style.scssファイルを取得 ※return必須
+    return gulp.src('assets/main-scss/style.scss')
         .pipe(plumber())
         // Sassのコンパイルを実行
         .pipe(sass({
@@ -55,6 +62,7 @@ gulp.task('js.uglify', function() {
       .pipe(gulp.dest('assets/main-js/'));
 });
 gulp.task('js', gulp.series('js.concat', 'js.uglify'))
+gulp.task('scss', gulp.series('scss.concat', 'scss.compile'))
 
 
 
