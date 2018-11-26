@@ -93,13 +93,15 @@ class PieChart extends THREE.Group {
         material.linewidth = 3;
         var vertical_line = new THREE.Line( ver_geometry, material );
         //sceneにlineを追加
+        console.log(this);
         this.add( vertical_line );
     }
 
     // textを描く
     const drawText = (text, angle) => {
       const positions = getRotPosition(angle, radius*0.7);
-
+      // function内でthisの内容が変わるためthatで記憶しておく
+      const that = this;
       const loader = new THREE.FontLoader();
       loader.load('fonts/helvetiker_regular.typeface.json', function(font){
         const textGeometry = new THREE.TextGeometry(text, {
@@ -115,13 +117,13 @@ class PieChart extends THREE.Group {
         const textMesh = new THREE.Mesh(textGeometry, materials);
         textMesh.position.set(positions.x-10, 11, positions.z-10);
         textMesh.rotation.set(-Math.PI/2, 0, -Math.PI/2);
-        this.add(textMesh);
+        that.add(textMesh);
       });
     }
     
     // 関数呼び出し
     drowPie(start, end, chartColor, sectorNum);
     drawVerticalLines(start);
-    // drawText(text,sectorNum*(sectorAngle-25));
+    drawText(text, (sectorNum+1)*sectorAngle-25);
   }
 }

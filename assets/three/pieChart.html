@@ -61,57 +61,6 @@
       scene.add(ambientLight);
 
 
-      // 角度から座標を取得(x,z)
-      const getRotPosition = (angle, radius) => {
-        // ラジアンに変換する
-        const radian = angle * Math.PI / 180;
-        // 角度に応じて位置を設定
-        var x = radius * Math.sin(radian);
-        var z = radius * Math.cos(radian);
-        
-        var positions = {
-          x: x,
-          z: z
-        };
-        return positions;
-      }
-      // //乱数生成最大値・最小値を引数に持つ関数
-      // const getRandom = ( min, max ) => {
-      //     var random = Math.floor( Math.random() * (max + 1 - min) ) + min;
-      //     return random;
-      // }
-      //乱数生成最大値・最小値を引数に持つ関数
-      const getSin = ( angle ) => {
-          // ラジアンに変換する
-          const radian = angle * Math.PI / 180;
-          // 角度に応じて位置を設定
-          const sin = 10 * Math.sin(10*radian) + 40 + 10*radian/2;
-          return sin;
-      }
-
-      // textを描く
-      const drawText = (text, angle) => {
-        const positions = getRotPosition(angle, radius*0.7);
-
-        const loader = new THREE.FontLoader();
-        loader.load('fonts/helvetiker_regular.typeface.json', function(font){
-          const textGeometry = new THREE.TextGeometry(text, {
-            font: font,
-            size: 20,
-            height: 5,
-            curveSegments: 12
-          });
-          const materials = [
-            new THREE.MeshBasicMaterial( { color: 0xffffff, overdraw: 0.5 } ),
-            new THREE.MeshBasicMaterial( { color: 0x000000, overdraw: 0.5 } )
-          ];
-          const textMesh = new THREE.Mesh(textGeometry, materials);
-          textMesh.position.set(positions.x-10, 11, positions.z-10);
-          textMesh.rotation.set(-Math.PI/2, 0, -Math.PI/2);
-          scene.add(textMesh);
-        });
-      }
-
       /*
         *
         * use plot functions from here
@@ -142,17 +91,12 @@
         sectorNum = i/sectorAngle;
         // 3D空間にグループを追加する
         sectorlist[sectorNum] = new THREE.Group();
-        sectorlist[sectorNum] = new PieChart(i, i+sectorAngle, color_list[sectorNum], sectorNum, String.fromCharCode(64+sectorNum));
+        sectorlist[sectorNum] = new PieChart(i, i+sectorAngle, color_list[sectorNum], sectorNum, String.fromCharCode(65+sectorNum));
         scene.add(sectorlist[sectorNum]);
+        // console.log(sectorlist[sectorNum]);
       }
 
-      // draw Text
-      for(var angle = 1; angle <= 8; angle++){
-        // A~G
-        drawText( String.fromCharCode(64+angle), angle*45-25);
-      }
 
-      
       render();
 
       //描画
