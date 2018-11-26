@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <script src="js/three.min.js"></script>
   <script src="js/controls/OrbitControls.js"></script>
+  <script src="js/chart/pieChart.js"></script>
 
   <script>
     // ページの読み込みを待つ
@@ -12,8 +13,8 @@
 
     function init() {
       // サイズを指定
-      const width = 960;
-      const height = 540;
+      const width = window.innerWidth;
+      const height = window.innerHeight;
       // 刻み幅
       const stride = 0.2;
       // 円の半径
@@ -74,11 +75,11 @@
         };
         return positions;
       }
-      //乱数生成最大値・最小値を引数に持つ関数
-      const getRandom = ( min, max ) => {
-          var random = Math.floor( Math.random() * (max + 1 - min) ) + min;
-          return random;
-      }
+      // //乱数生成最大値・最小値を引数に持つ関数
+      // const getRandom = ( min, max ) => {
+      //     var random = Math.floor( Math.random() * (max + 1 - min) ) + min;
+      //     return random;
+      // }
       //乱数生成最大値・最小値を引数に持つ関数
       const getSin = ( angle ) => {
           // ラジアンに変換する
@@ -87,57 +88,7 @@
           const sin = 10 * Math.sin(10*radian) + 40 + 10*radian/2;
           return sin;
       }
-      // chart 描く
-      let prev_damage_position = 0;
-      // マウスとの交差を調べたいものは配列に格納する
-      const meshList = [];
-      // グループを作る
-      const sectorlist = [];
-      var sectorNum = 0;
 
-      const drowPie = (start, end, chartColor) => {
-        //geometryの宣言と生成
-        var geometry = new THREE.Geometry();
-        // 3D空間にグループを追加する
-        sectorlist[sectorNum] = new THREE.Group();
-        scene.add(sectorlist[sectorNum]);
-
-        for(var i = start; i < end; i+= stride){
-          const positions = getRotPosition(i, radius);
-
-          
-          // draw pie
-          geometry.vertices.push( new THREE.Vector3( 0, 0, 0) ); 
-          geometry.vertices.push( new THREE.Vector3( positions.x, 0, positions.z) ); 
-          geometry.vertices.push( new THREE.Vector3( positions.x, 15, positions.z) ); 
-          geometry.vertices.push( new THREE.Vector3( 0, 15, 0) ); 
-          //線オブジェクトの生成	
-          var line = new THREE.Line( geometry, new THREE.LineBasicMaterial( { color: chartColor} ) );
-          
-          //scenelistにlineを追加
-          sectorlist[sectorNum].add(line);
-
-          // 負荷のグラフ
-          //geometryの宣言と生成
-          var damage_geometry = new THREE.Geometry();
-          if(i == 0){
-            prev_damage_position = getSin(i);
-          }else if( i < 360 ){
-            const damage_position = getSin(i);
-            //頂点座標の追加
-            damage_geometry.vertices.push( new THREE.Vector3( positions.x, prev_damage_position, positions.z) ); 
-            damage_geometry.vertices.push( new THREE.Vector3( positions.x, damage_position, positions.z) ); 
-            var material = new THREE.LineBasicMaterial( { color: 0xffffff} );
-            material.linewidth = 3;
-            //線オブジェクトの生成	
-            line = new THREE.Line( damage_geometry, material );
-            //sceneにlineを追加
-            scene.add( line );
-            prev_damage_position = damage_position;
-          } 
-        }
-        sectorNum++;
-      }
       // textを描く
       const drawText = (text, angle) => {
         const positions = getRotPosition(angle, radius*0.7);
@@ -181,25 +132,20 @@
       scene.add( mesh );
 
 
-      // draw vertical lines
-      for(var i = 0; i <= 360; i += sectorAngle){
-        const positions = getRotPosition(i, radius);
-        // console.log(positions);
-        // 縦の線
-        var ver_geometry = new THREE.Geometry();
-        ver_geometry.vertices.push( new THREE.Vector3( positions.x, 0, positions.z) );
-        ver_geometry.vertices.push( new THREE.Vector3( positions.x, 80, positions.z) );
-        var material = new THREE.LineBasicMaterial( { color: 0xffffff} );
-        material.linewidth = 3;
-        var vertical_line = new THREE.Line( ver_geometry, material );
-        //sceneにlineを追加
-        scene.add( vertical_line );
-      }
       // draw pieChart
       var color_list = [0x42bcf4,0x41f447,0xf4f441,0xf47941,0xf4424b,0xf441eb,0xc1f441,0x4167f4];
+      // グループを作る
+      const sectorlist = [];
+      var sectorNum = 0;
       for(var i = 0; i < 360; i += sectorAngle){
-        drowPie(i, i+sectorAngle, color_list[i/sectorAngle]);
+        // drowPie(i, i+sectorAngle, color_list[i/sectorAngle]);
+        sectorNum = i/sectorAngle;
+        // 3D空間にグループを追加する
+        sectorlist[sectorNum] = new THREE.Group();
+        sectorlist[sectorNum] = new PieChart(i, i+sectorAngle, color_list[sectorNum], sectorNum, String.fromCharCode(64+sectorNum));
+        scene.add(sectorlist[sectorNum]);
       }
+
       // draw Text
       for(var angle = 1; angle <= 8; angle++){
         // A~G
@@ -247,10 +193,10 @@
 </head>
 <body>
   <!-- 親のタグの基準点をリセット -->
-  <div style="position:relative; overflow: hidden; width: 960px; height: 540px;">
+  <div style="position:relative; overflow: hidden; width: 100%; height: 100%;">
     <canvas id="myCanvas"></canvas>
     <!-- ライン描画用のSVG -->
-    <svg width="960" height="540" style="position: absolute; top: 0; left: 0;">
+    <svg width=100% height=100% style="position: absolute; top: 0; left: 0;">
       <g stroke="white">
         <line id="svgLine"
               x1="0" y1="0" x2="0" y2="0"
